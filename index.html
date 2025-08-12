@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>💕</title>
+<style>
+  :root{
+    --bg1:#e08eab; --bg2:#e1bcd2;
+    --accent:#FF4D8A; --accent-2:#FF9ACD;
+  }
+  html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif}
+  body{
+    display:flex;align-items:center;justify-content:center;
+    background: radial-gradient(circle at 10% 10%,var(--bg2),var(--bg1));
+  }
+  .card{
+    width:360px;max-width:92vw;padding:28px;border-radius:18px;
+    box-shadow: 0 10px 30px rgba(255,77,138,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+    background: linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,250,250,0.85));
+    text-align:center;position:relative;overflow:visible;
+  }
+  h1{margin:0 0 8px 0;font-size:20px;color:#333}
+  p.sub{margin:0 0 18px 0;color:#6b6b6b;font-size:13px}
+  .heart{
+    font-size:46px;line-height:1;margin:0 auto 12px;display:inline-block;
+    transform-origin:center center;
+  }
+  /* heart beat */
+  .beat{
+    animation:beat 0.9s infinite;
+  }
+  @keyframes beat{
+    0%{transform:scale(1)}
+    28%{transform:scale(1.18)}
+    50%{transform:scale(0.98)}
+    100%{transform:scale(1)}
+  }
+
+  /* button */
+  .btn{
+    --pad:14px 20px;
+    padding:var(--pad);border-radius:999px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:white;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 8px 18px rgba(255,77,138,0.18);
+    transition:transform .12s ease, box-shadow .12s ease;
+    position:relative;overflow:hidden;
+  }
+  .btn:active{transform:translateY(2px) scale(.995);box-shadow:0 6px 14px rgba(255,77,138,0.16)}
+  .btn:focus{outline:3px solid rgba(255,154,205,0.25);outline-offset:4px}
+
+  /* little sparkle around button when pressed */
+  .sparkle{
+    position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;
+    transform:translate(-50%,-50%) scale(0);opacity:0;
+  }
+
+  /* message text */
+  .msg{margin-top:16px;font-size:15px;color:#4a4a4a;min-height:44px;transition:opacity .2s}
+
+  /* confetti */
+  canvas.confetti{position:absolute;inset:0;pointer-events:none;z-index:5}
+  .meta{margin-top:12px;font-size:12px;color:#9a9a9a}
+</style>
+</head>
+<body>
+  <div class="card" role="region" aria-label="การ์ดบอกรัก">
+    <div class="heart" id="heart">💗</div>
+    <h1>ชอบก็แถมให้อีกอันนะ</h1>
+    
+
+    <button class="btn" id="loveBtn" aria-pressed="false">
+      กดตรงนี้ค้าบ
+      <span class="sparkle" id="spark"></span>
+    </button>
+
+    <p class="msg" id="message">(หวังว่าจะชอบนะ)</p>
+
+    <div class="meta">กดซ้ำได้นะ</div>
+
+    <canvas class="confetti" id="confetti"></canvas>
+  </div>
+
+<script>
+/* สั้น ตรง ปลอดไลบรารี */
+const btn = document.getElementById('loveBtn');
+const heart = document.getElementById('heart');
+const msg = document.getElementById('message');
+const spark = document.getElementById('spark');
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+
+let w, h, particles = [];
+
+/* resize canvas */
+function resize(){ w = canvas.width = canvas.clientWidth; h = canvas.height = canvas.clientHeight; }
+window.addEventListener('resize', resize); resize();
+
+/* make confetti particles */
+function spawnConfetti(x,y){
+  const count = 28;
+  for(let i=0;i<count;i++){
+    particles.push({
+      x: x + (Math.random()-0.5)*40,
+      y: y + (Math.random()-0.5)*30,
+      vx: (Math.random()-0.45)*6,
+      vy: Math.random()*-6 - 1.5,
+      r: 6 + Math.random()*6,
+      life: 60 + Math.floor(Math.random()*40),
+      hue: 300 + Math.random()*60
+    });
+  }
+}
+
+/* animate confetti */
+function tick(){
+  ctx.clearRect(0,0,w,h);
+  for(let i=particles.length-1;i>=0;i--){
+    const p = particles[i];
+    p.vy += 0.22; p.x += p.vx; p.y += p.vy; p.life--;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate((p.x + p.y) * 0.02);
+    ctx.fillStyle = `hsl(${p.hue},85%,60%)`;
+    ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+    ctx.restore();
+    if(p.life <= 0 || p.y > h+20) particles.splice(i,1);
+  }
+  requestAnimationFrame(tick);
+}
+tick();
+
+/* small sparkle animation inside button */
+function popSpark(){
+  spark.style.transition = 'none';
+  spark.style.transform = 'translate(-50%,-50%) scale(0)';
+  spark.style.opacity = 1;
+  requestAnimationFrame(()=>{
+    spark.style.transition = 'transform .45s cubic-bezier(.2,.9,.2,1), opacity .45s';
+    spark.style.transform = 'translate(-50%,-120%) scale(14)';
+    spark.style.opacity = 0;
+  });
+}
+
+/* main click handler */
+const messages = [
+  "เดินทางปลอดภัยนะ",
+  "ถึงแล้วบอกหน่อยนะต้าบ",
+  "ขอให้วันนี้เป็นวันที่ดีนะค้าบ",
+  "กดแล้วเป็นไงรีวิวทีนะ 555"
+];
+let idx = 0;
+btn.addEventListener('click', (e)=>{
+  // visual toggles
+  btn.setAttribute('aria-pressed','true');
+  heart.classList.add('beat');
+  popSpark();
+
+  // update message
+  msg.style.opacity = 0;
+  setTimeout(()=>{ msg.textContent = messages[idx]; msg.style.opacity = 1; }, 150);
+  idx = (idx + 1) % messages.length;
+
+  // spawn confetti at random top area inside card
+  const rect = btn.getBoundingClientRect();
+  const parentRect = btn.closest('.card').getBoundingClientRect();
+  const cx = rect.left - parentRect.left + rect.width/2;
+  const cy = rect.top - parentRect.top - 8;
+  spawnConfetti(cx, cy);
+
+  // small heart color pop
+  heart.textContent = ["💗","💖","💘","❤️"][Math.floor(Math.random()*4)];
+  setTimeout(()=> heart.classList.remove('beat'), 800);
+});
+
+/* accessibility: Enter/Space on button */
+btn.addEventListener('keydown', (ev)=>{
+  if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); btn.click(); }
+});
+
+/* optional: let user click the heart to copy a ready message */
+heart.style.cursor = 'pointer';
+heart.title = 'คลิกเพื่อคัดลอกข้อความ';
+heart.addEventListener('click', async ()=>{
+  const text = msg.textContent || 'รักนะ ❤️';
+  try {
+    await navigator.clipboard.writeText(text + ' — จากคนที่คิดถึงเธอ');
+    const old = msg.textContent;
+    msg.textContent = 'คัดลอกข้อความเรียบร้อย ✓';
+    setTimeout(()=> msg.textContent = old, 1200);
+  } catch(e){
+    alert('ไม่สามารถคัดลอกได้บนเบราว์เซอร์นี้');
+  }
+});
+</script>
+</body>
+</html>
